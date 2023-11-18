@@ -1,46 +1,50 @@
-const http = require('http');
-const url = require('url');
-const fs = require('fs');
-const getUsers = require('./modules/users');
+const http = require("http");
+const getUsers = require("./modules/users");
 
-const hostname = '127.0.0.1';
-const port = 3000;
+const hostname = "127.0.0.1";
+const port = 3003;
 
 const server = http.createServer((request, response) => {
-    const parsedUrl = url.parse(request.url, true);
-    const queryObject = parsedUrl.query;
+  const url = new URL(request.url, `http://${hostname}`);
+  console.log(url);
+  console.log(url.searchParams);
 
-    if (parsedUrl.pathname === '/users') {
-        fs.readFile('data/users.json', (err, data) => {
-            if (err) {
-                response.writeHead(200, { 'Content-Type': 'text/plain' });
-                response.end(getUsers());
-            } else {
-                response.writeHead(200, { 'Content-Type': 'application/json' });
-                response.end(data);
-            }
-        });
-    } else if ('hello' in queryObject) {
-        const name = queryObject['hello'];
-        if (name) {
-            response.writeHead(200, { 'Content-Type': 'text/plain' });
-            response.end(`Hello, ${name}.`);
-        } else {
-            response.writeHead(400, { 'Content-Type': 'text/plain' });
-            response.end('Bad Request: Enter a name');
-        } 
-    } else if (Object.keys(queryObject).length > 0) {
-        response.writeHead(500, { 'Content-Type': 'text/plain' });
-        response.end('Internal Server Error');
-    } else if (parsedUrl.pathname === '/') {
-        response.writeHead(200, { 'Content-Type': 'text/plain' });
-        response.end('Hello, World!');
-    } else {
-        response.writeHead(500, { 'Content-Type': 'text/plain' });
-        response.end('Not Found');
+  const query = url.searchParams;
+
+  if (query.has("hello")) {
+    const name = query.get("hello");
+
+    if (name) {
+      response.statusCode = 200;
+      response.setHeader = "Content-Type: text/plain";
+      response.write(`Hello, ${name}!`);
+      response.end();
+      return;
     }
+
+    response.statusCode = 400;
+    response.setHeader = "Content-Type: text/plain";
+    response.write("Enter a name");
+    response.end();
+    return;
+  } else if (url.pathname === "/users") {
+    response.statusCode = 200;
+    response.setHeader = "Content-Type: application/json";
+    response.write(getUsers());
+    response.end();
+    return;
+  } else if (url.search === "") {
+    response.statusCode = 200;
+    response.setHeader = "Content-Type: text/plain";
+    response.write("Hello, World!");
+    response.end();
+  } else {
+    response.statusCode = 500;
+    response.end();
+    return;
+  }
 });
 
 server.listen(port, hostname, () => {
-    console.log(`Сервер запущен по адресу http://${hostname}:${port}/`);
+  console.log(`Сервер запущен по адресу http://${hostname}:${port}/`);
 });
