@@ -33,13 +33,15 @@ const server = http.createServer((request, response) => {
     response.write(getUsers());
     response.end();
     return;
-  } else if (url.search === "") {
+  } else if (request.url === "/") {
     response.statusCode = 200;
     response.setHeader = "Content-Type: text/plain";
     response.write("Hello, World!");
     response.end();
   } else {
     response.statusCode = 500;
+    response.setHeader = "Content-Type: text/plain";
+    response.write("Enter correct url");
     response.end();
     return;
   }
