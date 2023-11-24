@@ -1,9 +1,25 @@
-const fs = require('fs')
-const path = require('path')
+const mongoose = require("mongoose");
 
-const getUsers = () => {
-    const filePath = path.join(__dirname, '../data/users.json')
-    return fs.readFileSync(filePath)
-}
+const userSchema = new mongoose.Schema({
+  firstName: {
+    type: String,
+    required: true,
+    minlength: 2,
+  },
+  lastName: {
+    type: String,
+    required: true,
+    minlength: 2,
+  },
+  username: {
+    type: String,
+    required: true,
+    minlength: 5,
+  },
+});
 
-module.exports = getUsers;
+const User = mongoose.model("User", userSchema);
+
+module.exports = {
+  User,
+};
